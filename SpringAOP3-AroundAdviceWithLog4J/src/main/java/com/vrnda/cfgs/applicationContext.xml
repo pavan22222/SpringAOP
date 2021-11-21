@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd">
+
+	<bean id="cal" class="java.util.Calendar"
+		factory-method="getInstance"></bean>
+
+	<bean id="wmg" class="com.vrnda.beans.WishMessageGenerator">
+		<property name="calender" ref="cal"></property>
+	</bean>
+	
+	<bean id="bank" class="com.vrnda.beans.BankService"/>
+
+	<bean id="paspect" class="com.vrnda.aspect.AroundAdviceAspect"></bean>
+
+	<bean id="caspect" class="com.vrnda.aspect.CacheAspect" />
+
+	<aop:config>
+
+		<aop:pointcut
+			expression="execution(String com.vrnda.beans.WishMessageGenerator.cal*(..))"
+			id="ptc" />
+			
+		<aop:pointcut expression="execution(String com.vrnda.beans.BankService.get*(..))" id="ptc1"/>
+		<aop:aspect ref="paspect" order="2">
+			<aop:around method="invoke" pointcut-ref="ptc1" />
+		</aop:aspect>
+		
+		<aop:aspect ref="caspect" order="1">
+			<aop:around method="cache" pointcut-ref="ptc1"/>
+		</aop:aspect>
+
+	</aop:config>
+
+</beans>
